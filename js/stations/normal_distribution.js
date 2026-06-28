@@ -66,6 +66,14 @@ function placeProjectorInCorner(station, side = "right", minLeftX = null) {
   proj.position.set(x, y, 0.08);
 }
 
+// Compatibility wrapper: icy's lesson steps call setPanelSide(station, side).
+// It simply re-docks the explanation panel on the right using this file's panel
+// system. (Without this, stepping through a lesson threw a ReferenceError,
+// which left the UI stuck so Exit appeared not to work.)
+function setPanelSide(station, _side) {
+  placeProjectorInCorner(station, "right", null);
+}
+
 function removeOrientationArrows(plot) {
   const toRemove = [];
   for (const child of plot.children) {
@@ -221,13 +229,13 @@ class NormalStation extends BaseStation {
   plotConfig() {
     // Same board-relative proportions as Member 2 (2.4 x 1.5) so all graphs
     // match in size once BaseStation scales the whole station.
-    return { xMin: -4, xMax: 4, yMin: 0, yMax: 0.6, width: 1.6, height: 1.55 };
+    return { xMin: -4, xMax: 4, yMin: 0, yMax: 0.5, width: 1.6, height: 1.55 };
   }
   buildGraph(plot) {
     removeOrientationArrows(plot);
     addAxisLabels(plot, {
       xStep: 1,
-      yTicks: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+      yTicks: [0, 0.1, 0.2, 0.3, 0.4, 0.5],
       xTitle: "x  (or z)",
       yTitle: "f(x)",
     });
@@ -400,7 +408,7 @@ class NormalStation extends BaseStation {
 
   // ---- EXAMPLE 1: a Z-score probability question --------------------------
   defineExample1Steps() {
-    const scaleFactor = 0.7;
+    const scaleFactor = 0.6;
     const mu = 0;
     const sigma = 0.5;
     const verticalExtension = 0.58;
@@ -530,7 +538,7 @@ class NormalStation extends BaseStation {
 
   // ---- EXAMPLE 2: the 68–95–99.7 rule -------------------------------------
   defineExample2Steps() {
-    const scaleFactor = 0.7;
+    const scaleFactor = 0.6;
     const mu = 0;
     const sigma = 0.5;
     const verticalExtension = 0.58;
