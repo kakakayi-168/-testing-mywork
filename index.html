@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calculus XR Classroom</title>
+
+    <!-- Mobile-first viewport: lock scaling so the canvas owns the screen -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0b1020" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+
+    <link rel="stylesheet" href="./styles.css" />
+
+    <!--
+      Import map.
+
+      We keep the XR Blocks SDK available (per the brief) AND three.js, which is
+      what both XR Blocks and this app are built on. The app is authored against
+      plain three.js so it runs in mobile Safari / Chrome with no headset and no
+      build step, while still living in the XR Blocks idiom (Script-style
+      lifecycle, an Options object, a desktop simulator mindset). See README.
+    -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/",
+          "xrblocks": "https://cdn.jsdelivr.net/gh/google/xrblocks@build/xrblocks.js",
+          "xrblocks/addons/": "https://cdn.jsdelivr.net/gh/google/xrblocks@build/addons/"
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <!-- The renderer attaches its canvas here -->
+    <div id="app"></div>
+
+    <!-- ===================== 2D UI LAYER (HUD only) ===================== -->
+    <!-- These are screen controls only. ALL teaching content is rendered    -->
+    <!-- inside the 3D scene (wall projection + floating panels), never here. -->
+
+    <!-- First-load onboarding overlay -->
+    <div id="onboarding" class="onboarding hidden">
+      <div class="onboarding-card">
+        <h1>Calculus XR Classroom</h1>
+        <p>🕹️ Use the joystick (bottom-left) to walk</p>
+        <p>👀 Drag anywhere to look around</p>
+        <p>✋ Walk up to a board, then tap <b>Interact</b></p>
+        <p>⏭️ Tap <b>Next</b> to step through each idea</p>
+        <button id="onboarding-dismiss" class="btn-primary">Enter Classroom</button>
+      </div>
+    </div>
+
+    <!-- Loading splash -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading classroom…</div>
+    </div>
+
+    <!-- Virtual joystick (bottom-left) -->
+    <div id="joystick" class="joystick hidden">
+      <div id="joystick-knob" class="joystick-knob"></div>
+    </div>
+
+    <!-- Interact button (bottom-right) — shown only when near a station -->
+    <button id="interact-btn" class="interact-btn hidden">Interact</button>
+
+    <!-- Step controls — shown only while a lesson panel is open -->
+    <div id="step-controls" class="step-controls hidden">
+      <button id="prev-btn" class="step-btn">‹ Prev</button>
+      <button id="exit-btn" class="step-btn step-exit">Exit</button>
+      <button id="next-btn" class="step-btn">Next ›</button>
+    </div>
+
+    <!-- Title hint that floats in when you approach a board -->
+    <div id="proximity-hint" class="proximity-hint hidden"></div>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
