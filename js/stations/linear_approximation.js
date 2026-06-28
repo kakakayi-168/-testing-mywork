@@ -139,7 +139,7 @@ function addAxisLabels(plot, opts = {}) {
    panel does not cover them. */
 function placePanel(station, corner = "left") {
   const proj = station.projector;
-  const scale = 0.32; // uniform → panel ≈ 1.09 m wide × 0.64 m tall
+  const scale = 0.38; // bigger explanation text (was 0.32), still leaves graph room
   proj.scale.setScalar(scale);
 
   const projW = 3.4 * scale;
@@ -181,7 +181,7 @@ class LinearApproxStation extends BaseStation {
     // yMax must exceed f(xMax)=f(3)=9 so the parabola isn't clipped (a clamped
     // curve renders as a flat line at the ceiling). yMin slightly below 0 to
     // show the vertex sitting on the axis.
-    return { xMin: -1, xMax: 3, yMin: -0.5, yMax: 9.5, width: 2.5, height: 1.6 };
+    return { xMin: -1, xMax: 3, yMin: -0.5, yMax: 9.5, width: 2.1, height: 1.6 };
   }
 
   buildGraph(plot) {

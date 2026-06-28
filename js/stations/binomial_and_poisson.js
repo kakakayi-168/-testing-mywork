@@ -187,7 +187,7 @@ function addAxisLabels(plot, opts = {}) {
     });
     // place just BELOW the x-axis (y = 0); keep clear of the board edge
     const p = plot.toLocal(k, 0, 0.05);
-    label.position.set(p.x, p.y - 0.12, 0.05);
+    label.position.set(p.x, p.y - 0.10, 0.05);
     plot.add(label);
   }
 
@@ -235,8 +235,8 @@ function addAxisLabels(plot, opts = {}) {
     bold: true,
     align: "center",
   });
-  const xTickRowY = plot.toLocal(0, 0).y - 0.12; // where the k-numbers sit
-  const xTitleY = Math.max(xTickRowY - 0.16, -boardHalfH + xTitleH / 2 + 0.03);
+  const xTickRowY = plot.toLocal(0, 0).y - 0.10; // where the k-numbers sit
+  const xTitleY = Math.max(xTickRowY - 0.22, -boardHalfH + xTitleH / 2 + 0.03);
   xt.position.set(0, xTitleY, 0.07);
   plot.add(xt);
 
@@ -265,7 +265,7 @@ class BinomialStation extends BaseStation {
   }
   plotConfig() {
     // X from 0..n=10 on the x-axis; probability 0..~0.3 on the y-axis.
-    return { xMin: -0.5, xMax: 10.5, yMin: 0, yMax: 0.45, width: 1.8, height: 1.7 };
+    return { xMin: -0.5, xMax: 10.5, yMin: 0, yMax: 0.45, width: 1.8, height: 1.45 };
   }
   buildGraph(plot) {
     // Bars are dynamic (per step). Axis labels are static, added once here so
@@ -525,7 +525,7 @@ class PoissonStation extends BaseStation {
     placeProjectorInCorner(this);
   }
   plotConfig() {
-    return { xMin: -0.5, xMax: 12.5, yMin: 0, yMax: 0.32, width: 1.8, height: 1.7 };
+    return { xMin: -0.5, xMax: 12.5, yMin: 0, yMax: 0.32, width: 1.8, height: 1.45 };
   }
   buildGraph(plot) {
     this.KMAX = 12;

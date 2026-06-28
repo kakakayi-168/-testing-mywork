@@ -414,7 +414,7 @@ class NormalApproxStation extends BaseStation {
     return { x: -0.3, y: 0.05 };
   }
   plotConfig() {
-    return { xMin: -0.5, xMax: 20.5, yMin: 0, yMax: 0.22, width: 1.6, height: 1.55 };
+    return { xMin: 0, xMax: 20.5, yMin: 0, yMax: 0.22, width: 1.6, height: 1.55 };
   }
   buildGraph(plot) {
     this.N = 20;
