@@ -221,13 +221,13 @@ class NormalStation extends BaseStation {
   plotConfig() {
     // Same board-relative proportions as Member 2 (2.4 x 1.5) so all graphs
     // match in size once BaseStation scales the whole station.
-    return { xMin: -4, xMax: 4, yMin: 0, yMax: 0.5, width: 1.6, height: 1.55 };
+    return { xMin: -4, xMax: 4, yMin: 0, yMax: 0.6, width: 1.6, height: 1.55 };
   }
   buildGraph(plot) {
     removeOrientationArrows(plot);
     addAxisLabels(plot, {
       xStep: 1,
-      yTicks: [0, 0.1, 0.2, 0.3, 0.4, 0.5],
+      yTicks: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
       xTitle: "x  (or z)",
       yTitle: "f(x)",
     });
@@ -255,66 +255,144 @@ class NormalStation extends BaseStation {
 
   defineSteps() {
     return [
+      // ----- Step 1a: 常態分佈簡介 -----
       {
         board: {
-          title: "3.1 Normal curve",
+          title: "3.1 The Normal (Gaussian) curve",
           accent: "#4cc9f0",
           body: [
-            "Continuous, symmetric,",
-            "bell-shaped curve.",
-            "Two params: µ and σ.",
-            "Here µ=0, σ=1 (standard).",
+            "Normal distribution",
+            "is a continuous probability distribution",
+            "with a symmetric, bell-shaped curve.",
+            "Defined by two parameters: σ > 0 and µ.",
           ],
         },
         enter: (plot) => this._bell(plot, 0, 1, 0x4cc9f0),
       },
+      // ----- Step 1b: 公式 + 標準常態 -----
       {
         board: {
-          title: "3.1 µ shifts, σ spreads",
-          accent: "#ffd166",
+          title: "3.1 The Normal (Gaussian) curve",
+          accent: "#4cc9f0",
           body: [
-            "E[X] = µ → peak at x=µ.",
-            "Var(X) = σ² → bigger σ,",
-            "wider, flatter bell.",
-            "Here µ=1, σ=1.5.",
+            "f(x) = 1/√(2πσ²)·exp(−(x−µ)²/(2σ²))",
+            "for −∞ < x < ∞",
+            "Here µ=0, σ=1 (the standard normal)",
           ],
         },
-        enter: (plot) => this._bell(plot, 1, 1.5, 0xffd166),
+        enter: (plot) => this._bell(plot, 0, 1, 0x4cc9f0),
       },
+      // ----- Step 2: µ moves it, σ stretches it (純概念，對比用虛線) -----
       {
         board: {
-          title: "3.1 Standardize X → Z",
-          accent: "#69f0ae",
+          title: "3.1 µ moves it, σ stretches it",
+          accent: "#ffd166",
           body: [
-            "Z = (X − µ)/σ.",
-            "Turns any normal into",
-            "the N(0,1) curve.",
-            "Point Z = 0.36 marked.",
+            "E[X] = µ",
+            "(the peak sits over x = µ)",
+            "Var(X) = σ²",
+            "(larger σ means a wider, flatter bell)",
+            "The curve shifts with µ, spreads with σ.",
           ],
         },
         enter: (plot) => {
-          this._bell(plot, 0, 1, 0x69f0ae);
-          plot.marker(0.36, normalPDF(0.36, 0, 1), { color: 0xff8a65, size: 0.04, pulse: false });
-          plot.segment(0.36, 0, 0.36, normalPDF(0.36, 0, 1), { color: 0xff8a65, radius: 0.008 });
+          plot.plotFunction((x) => normalPDF(x, 1, 1.5), {
+            color: 0xffd166,
+            radius: 0.008,
+            clampY: false,
+            dash: true,
+          });
         },
       },
+      // ----- Step 3a: Standardization — 概念 -----
+      {
+        board: {
+          title: "3.1 Standardization: X → Z",
+          accent: "#69f0ae",
+          body: ["Any X ~ N(µ, σ²) becomes Z ~ N(0,1)", "via  Z = (X − µ) / σ"],
+        },
+        enter: (plot) => {
+          plot.plotFunction((x) => normalPDF(x, 0, 1), {
+            color: 0x69f0ae,
+            radius: 0.014,
+            clampY: false,
+          });
+          plot.marker(0, normalPDF(0, 0, 1), {
+            color: 0x00c853,
+            size: 0.06,
+          });
+        },
+      },
+      // ----- Step 3b: Why standardize? -----
+      {
+        board: {
+          title: "3.1 Why standardize?",
+          accent: "#69f0ae",
+          body: [
+            "Then a single Z-table answers",
+            "can find all probability questions.",
+            "Example: ",
+            "standard curve with Z = 0.36 marked.",
+          ],
+        },
+        enter: (plot) => {
+          plot.plotFunction((x) => normalPDF(x, 0, 1), {
+            color: 0x69f0ae,
+            radius: 0.014,
+            clampY: false,
+          });
+          const z = 0.36;
+          const y = normalPDF(z, 0, 1);
+          plot.marker(z - 0.195, y, {
+            color: 0x00c853,
+            size: 0.06,
+          });
+          plot.segment(z - 0.195, 0, z - 0.195, y + 0.15, {
+            color: 0x00c853,
+            radius: 0.02,
+          });
+          for (let x = z; x <= 3.5; x += 0.25) {
+            plot.bar(x, normalPDF(x, 0, 1), {
+              color: 0x69f0ae,
+              widthMath: 0.22,
+            });
+          }
+        },
+      },
+      // ----- Step 4: Reading the Z-table -----
       {
         board: {
           title: "3.1 Reading the Z-table",
           accent: "#f72585",
           body: [
-            "Find P(Z < 0.36).",
-            "Upper tail = 0.3594.",
-            "P = 1 − 0.3594",
-            "  = 0.6406  (≈ 64%).",
+            "Example:  P(Z < 0.36).",
+            "Check the Z-table for Z = 0.36.",
+            "P(Z > 0.36) = 0.3594.",
+            "So P(Z < 0.36) = 1 − 0.3594 = 0.6406.",
           ],
         },
         enter: (plot) => {
-          this._bell(plot, 0, 1, 0x4cc9f0);
-          for (let x = -3.5; x <= 0.36; x += 0.25) {
-            plot.bar(x, normalPDF(x, 0, 1), { color: 0x4cc9f0, widthMath: 0.22 });
+          plot.plotFunction((x) => normalPDF(x, 0, 1), {
+            color: 0x69f0ae,
+            radius: 0.014,
+            clampY: false,
+          });
+          const z = 0.36;
+          const y = normalPDF(z, 0, 1);
+          plot.marker(z - 0.195, y, {
+            color: 0x00c853,
+            size: 0.06,
+          });
+          plot.segment(z - 0.195, 0, z - 0.195, y + 0.15, {
+            color: 0x00c853,
+            radius: 0.02,
+          });
+          for (let x = z; x <= 3.5; x += 0.25) {
+            plot.bar(x, normalPDF(x, 0, 1), {
+              color: 0x69f0ae,
+              widthMath: 0.22,
+            });
           }
-          plot.segment(0.36, 0, 0.36, normalPDF(0.36, 0, 1), { color: 0xff8a65, radius: 0.01 });
         },
       },
     ];
@@ -322,41 +400,129 @@ class NormalStation extends BaseStation {
 
   // ---- EXAMPLE 1: a Z-score probability question --------------------------
   defineExample1Steps() {
+    const scaleFactor = 0.7;
+    const mu = 0;
+    const sigma = 0.5;
+    const verticalExtension = 0.58;
+
+    const Z1 = -1.0;
+    const Z2 = 0.5;
+
+    const drawBaseCurve = (plot) => {
+      plot.plotFunction((x) => normalPDF(x, mu, sigma) * scaleFactor, {
+        color: 0xf72585,
+        radius: 0.015,
+        clampY: false,
+      });
+    };
+
+    const drawZMarker = (plot, z, color = 0xffd166) => {
+      const y = normalPDF(z, mu, sigma) * scaleFactor;
+      plot.marker(z, 0, { color, size: 0.06 });
+      plot.segment(z, 0, z, verticalExtension, {
+        color,
+        radius: 0.015,
+      });
+    };
+
+    const fillArea = (plot, xStart, xEnd, color, step = 0.15) => {
+      for (let x = xStart; x <= xEnd; x += step) {
+        plot.bar(x, normalPDF(x, mu, sigma) * scaleFactor, {
+          color,
+          widthMath: 0.12,
+        });
+      }
+    };
+
     return [
+      // Step 1: 設定
       {
         board: {
-          title: "Example 1 — Z-score",
+          title: "Question: Heights",
           accent: "#4cc9f0",
           body: [
-            "Scores ~ N(µ=70, σ=10).",
-            "What is P(X < 85)?",
-            "Standardize the value:",
-            "Z = (85−70)/10 = 1.5.",
+            "Heights: X ~ N(µ = 68.0, σ = 3.0).",
+            "Random sample of n = 25 students.",
+            "SE = σ/√n = 0.6",
+            "Find P(67.4 < X̄ < 68.3).",
           ],
         },
         enter: (plot) => {
-          this._bell(plot, 0, 1, 0x4cc9f0);
-          plot.marker(1.5, normalPDF(1.5, 0, 1), { color: 0xff8a65, size: 0.04, pulse: false });
-          plot.segment(1.5, 0, 1.5, normalPDF(1.5, 0, 1), { color: 0xff8a65, radius: 0.008 });
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          plot.marker(0, normalPDF(0, mu, sigma) * scaleFactor, {
+            color: 0xffd166,
+            size: 0.045,
+          });
         },
       },
+      // Step 2: Z₁ = -1，右尾填充 (由 -1 向右)
       {
         board: {
-          title: "Example 1 — answer",
-          accent: "#69f0ae",
+          title: "Ex1: Z₁ = (67.4 − 68.0) / 0.6",
+          accent: "#b39ddb",
           body: [
-            "P(Z < 1.5) from table",
-            "= 0.9332.",
-            "So about 93% score",
-            "below 85.",
+            "Part (i): Find P(67.4 < X̄ < 68.3).",
+            "Z₁ = (67.4 − 68.0) / 0.6 = −1.00",
+            "Shaded right region: Z > -1",
+            " (about 84.13% area).",
           ],
         },
         enter: (plot) => {
-          this._bell(plot, 0, 1, 0x69f0ae);
-          for (let x = -3.5; x <= 1.5; x += 0.25) {
-            plot.bar(x, normalPDF(x, 0, 1), { color: 0x4cc9f0, widthMath: 0.22 });
-          }
-          plot.segment(1.5, 0, 1.5, normalPDF(1.5, 0, 1), { color: 0xff8a65, radius: 0.01 });
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          fillArea(plot, Z1, 4.0, 0x9575cd);
+          drawZMarker(plot, Z1, 0x9575cd);
+        },
+      },
+      // Step 3: Z₂ = 0.5，右尾填充 (由 0.5 向右)
+      {
+        board: {
+          title: "Ex1: Z₂ = (68.3 − 68.0) / 0.6",
+          accent: "#ff8a65",
+          body: [
+            "Z₂ = (68.3 − 68.0) / 0.6 = +0.50",
+            "Orange right region: Z > 0.5",
+            "(about 30.85% area).",
+            "Now we have the upper boundary.",
+          ],
+        },
+        enter: (plot) => {
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          fillArea(plot, Z2, 4.0, 0xff8a65);
+          drawZMarker(plot, Z2, 0xff8a65);
+        },
+      },
+      // Step 4: 雙色右尾填充
+      {
+        board: {
+          title: "Ex1: Z-table values (upper tail)",
+          accent: "#f72585",
+          body: ["P(Z > 0.50) = 0.3085", "P(Z > -1.00) = 0.8413"],
+        },
+        enter: (plot) => {
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          fillArea(plot, Z1, 4.0, 0x9575cd);
+          fillArea(plot, Z2, 4.0, 0xff8a65);
+          drawZMarker(plot, Z1, 0x9575cd);
+          drawZMarker(plot, Z2, 0xff8a65);
+        },
+      },
+      // Step 5: 中間區域 (黃色)
+      {
+        board: {
+          title: "Ex1: Probability of the interval",
+          accent: "#ffd166",
+          body: ["P(−1.00 < Z < 0.50)", "= 0.8413 − 0.3085", "= 0.5328"],
+        },
+        enter: (plot) => {
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          fillArea(plot, Z1, Z2, 0xffd166);
+          drawZMarker(plot, Z1, 0xffd166);
+          drawZMarker(plot, Z2, 0xffd166);
         },
       },
     ];
@@ -364,39 +530,137 @@ class NormalStation extends BaseStation {
 
   // ---- EXAMPLE 2: the 68–95–99.7 rule -------------------------------------
   defineExample2Steps() {
+    const scaleFactor = 0.7;
+    const mu = 0;
+    const sigma = 0.5;
+    const verticalExtension = 0.58;
+
+    const Z1 = 0.1;
+    const Z2 = 0.6;
+
+    const drawBaseCurve = (plot) => {
+      plot.plotFunction((x) => normalPDF(x, mu, sigma) * scaleFactor, {
+        color: 0xf72585,
+        radius: 0.015,
+        clampY: false,
+      });
+    };
+
+    const drawZMarker = (plot, z, color = 0xffd166) => {
+      const y = normalPDF(z, mu, sigma) * scaleFactor;
+      plot.marker(z, 0, { color, size: 0.06 });
+      plot.segment(z, 0, z, verticalExtension, {
+        color,
+        radius: 0.015,
+      });
+    };
+
+    const fillArea = (plot, xStart, xEnd, color, step = 0.15) => {
+      for (let x = xStart; x <= xEnd; x += step) {
+        plot.bar(x, normalPDF(x, mu, sigma) * scaleFactor, {
+          color,
+          widthMath: 0.12,
+        });
+      }
+    };
+
+    const addZLabel = (plot, z, label) => {
+      const p = plot.toLocal(z, 0, 0.05);
+      const sprite = makeTextSprite(label, {
+        worldHeight: 0.12,
+        color: "#ffd166",
+        bold: true,
+        align: "center",
+      });
+      sprite.position.set(p.x, p.y - 0.28, 0.05);
+      plot.add(sprite);
+    };
+
     return [
       {
         board: {
-          title: "Example 2 — 68 rule",
+          title: "Question: Weight ",
           accent: "#4cc9f0",
           body: [
-            "Within ±1σ of the mean",
-            "lies about 68% of area.",
-            "Shaded: z from −1 to 1.",
+            "Weights: X ~ N(µ = 70 kg, σ = 10 kg).",
+            "Random sample of n = 36 students.",
+            "SE = 10/√36 = 1.6667",
+            "Find P(68 < X̄ < 72).",
           ],
         },
         enter: (plot) => {
-          this._bell(plot, 0, 1, 0x4cc9f0);
-          for (let x = -1; x <= 1; x += 0.2) {
-            plot.bar(x, normalPDF(x, 0, 1), { color: 0x69f0ae, widthMath: 0.18 });
-          }
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          plot.marker(0, normalPDF(0, mu, sigma) * scaleFactor, {
+            color: 0xffd166,
+            size: 0.045,
+          });
         },
       },
       {
         board: {
-          title: "Example 2 — 95 rule",
-          accent: "#69f0ae",
+          title: "Z1 calculation",
+          accent: "#b39ddb",
           body: [
-            "Within ±2σ lies ~95%.",
-            "Within ±3σ lies ~99.7%.",
-            "Shaded: z from −2 to 2.",
+            "Z₁ = (68 − 70) / 1.6667 = −1.20",
+            "But we want Z₁ = 0.1 for demonstration.",
+            "Shaded region: Z > 0.1",
+            "(around 46.02% area).",
           ],
         },
         enter: (plot) => {
-          this._bell(plot, 0, 1, 0x69f0ae);
-          for (let x = -2; x <= 2; x += 0.2) {
-            plot.bar(x, normalPDF(x, 0, 1), { color: 0xffd166, widthMath: 0.18 });
-          }
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          fillArea(plot, Z1, 4.0, 0x9575cd);
+          drawZMarker(plot, Z1, 0x9575cd);
+        },
+      },
+      {
+        board: {
+          title: "Z2 calculation",
+          accent: "#ff8a65",
+          body: [
+            "Z₂ = (72 − 70) / 1.6667 = +1.20",
+            "But we want Z₂ = 0.6 for demonstration.",
+            "Orange region: Z > 0.6",
+            "(about 27.43% area).",
+            "Now we have both boundaries.",
+          ],
+        },
+        enter: (plot) => {
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          fillArea(plot, Z2, 4.0, 0xff8a65);
+          drawZMarker(plot, Z2, 0xff8a65);
+        },
+      },
+      {
+        board: {
+          title: "Z-table values ",
+          accent: "#f72585",
+          body: ["P(Z > 0.60) = 0.2743", "P(Z > 0.10) = 0.4602"],
+        },
+        enter: (plot) => {
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          fillArea(plot, Z2, 4.0, 0xff8a65);
+          fillArea(plot, Z1, Z2, 0x9575cd);
+          drawZMarker(plot, Z1, 0x9575cd);
+          drawZMarker(plot, Z2, 0xff8a65);
+        },
+      },
+      {
+        board: {
+          title: "Probability of the interval",
+          accent: "#ffd166",
+          body: ["P(0.10 < Z < 0.60)", "= 0.4602 − 0.2743", "= 0.1859"],
+        },
+        enter: (plot) => {
+          setPanelSide(this, "right");
+          drawBaseCurve(plot);
+          fillArea(plot, Z1, Z2, 0xffd166);
+          drawZMarker(plot, Z1, 0xffd166);
+          drawZMarker(plot, Z2, 0xffd166);
         },
       },
     ];
@@ -462,56 +726,71 @@ class NormalApproxStation extends BaseStation {
     return [
       {
         board: {
-          title: "3.2 Bell for bars?",
+          title: "Normal ≈ Binomial", // 縮短
           accent: "#4cc9f0",
           body: [
-            "Binomial = bars.",
-            "Normal = smooth curve.",
-            "OK if np>5 and n(1−p)>5.",
-            "n=20, p=0.5 → both =10 ✓",
-          ],
-        },
-        enter: (plot) => this._bars(plot, 0.5),
-      },
-      {
-        board: {
-          title: "3.2 Match µ and σ²",
-          accent: "#ffd166",
-          body: [
-            "µ = np = 10.",
-            "σ² = np(1−p) = 5.",
-            "σ = √5 ≈ 2.24.",
-            "Overlay N(10, 5).",
+            "Binomial is discrete (bars)",
+            "Normal is continuous (curve).",
+            "The figure below shows:",
+            "bars (discrete) vs curve (continuous).",
           ],
         },
         enter: (plot) => {
           this._bars(plot, 0.5);
           this._bell(plot, this.N * 0.5, Math.sqrt(this.N * 0.5 * 0.5));
-          plot.marker(this.N * 0.5, normalPDF(this.N * 0.5, this.N * 0.5, Math.sqrt(5)), {
-            color: 0xf72585,
-            size: 0.04,
-          });
         },
       },
       {
         board: {
-          title: "3.2 ±0.5 correction",
-          accent: "#69f0ae",
+          title: "Conditions for approximate",
+          accent: "#4cc9f0",
           body: [
-            "Bars have width 1.",
-            "P(X ≤ 10): go up to 10.5.",
-            "P(X ≥ 10): start at 9.5.",
-            "±0.5 covers each bar.",
+            "When np > 5 and n(1−p) > 5,",
+            "we may approximate X by Normal distribution",
+            "Here n = 20, p = 0.5 → np = 10,",
+            "n(1−p) = 10. Both > 5. ✓",
+            "The figure below is an example with n=20, p=0.5.",
           ],
         },
         enter: (plot) => {
           this._bars(plot, 0.5);
-          this._bell(plot, this.N * 0.5, Math.sqrt(5));
-          plot.segment(10.5, 0, 10.5, normalPDF(10.5, this.N * 0.5, Math.sqrt(5)) + 0.02, {
-            color: 0xff8a65,
-            radius: 0.012,
-          });
-          plot.marker(10.5, 0, { color: 0xff8a65, size: 0.035, pulse: true });
+          this._bell(plot, this.N * 0.5, Math.sqrt(this.N * 0.5 * 0.5));
+        },
+      },
+      {
+        board: {
+          title: "Mean, Variance and Std Dev",
+          accent: "#ffd166",
+          body: [
+            "For µ = np = 20·0.5 = 10.",
+            "σ² = np(1−p) = 20·0.5·0.5 = 5",
+            "σ = √5 ≈ 2.24.",
+            "Mean = 10, Variance = 5, Std Dev ≈ 2.24.",
+          ],
+        },
+        enter: (plot) => {
+          this._bars(plot, 0.5);
+          this._bell(plot, this.N * 0.5, Math.sqrt(this.N * 0.5 * 0.5));
+        },
+      },
+      {
+        board: {
+          title: "Match mean & variance",
+          accent: "#ffd166",
+          body: [
+            "Overlay N(10, 5) on top of the bars.",
+            "The curve traces the tops of the bars",
+            "closely.",
+          ],
+        },
+        enter: (plot) => {
+          this._bars(plot, 0.5);
+          this._bell(plot, this.N * 0.5, Math.sqrt(this.N * 0.5 * 0.5));
+          // 加 marker 喺每個 k 嘅頂點
+          for (let k = 1; k <= this.N; k++) {
+            const prob = binomPMF(this.N, 0.5, k);
+            plot.marker(k, prob, { color: 0x00c853, size: 0.025 });
+          }
         },
       },
     ];
@@ -519,39 +798,122 @@ class NormalApproxStation extends BaseStation {
 
   // ---- EXAMPLE 1: p shifted (n=20, p=0.3) ---------------------------------
   defineExample1Steps() {
-    const p = 0.3, mu = this.N * p, sigma = Math.sqrt(this.N * p * (1 - p));
+    const n = 200;
+    const p = 0.03;
+    const mu = n * p; // 6
+    const sigma = Math.sqrt(n * p * (1 - p)); // √5.82 ≈ 2.412
+
     return [
+      // ===== Page 1: Question =====
       {
         board: {
-          title: "Example 1 — p = 0.3",
-          accent: "#4cc9f0",
+          title: "Example: Workplace Accidents",
+          accent: "#f72585",
           body: [
-            "n = 20, p = 0.3.",
-            "np = 6, n(1−p) = 14.",
-            "Both > 5, so OK ✓",
-            "µ = 6, σ ≈ 2.05.",
+            "Question:A factory has 200 workers.Each",
+            "worker has a 3% chance of having an accident",
+            "in a year.Let X be the number of workers",
+            "who have an accident in a year. As",
+            "X ~ Binomial(n = 200, p = 0.03),Find P(X > 8) ",
+            "using Normal approximation.",
           ],
         },
         enter: (plot) => {
-          this._bars(plot, p);
-          this._bell(plot, mu, sigma);
-          plot.marker(mu, normalPDF(mu, mu, sigma), { color: 0xf72585, size: 0.04 });
+          for (let k = 0; k <= 20; k++) {
+            const prob = binomPMF(n, p, k);
+            plot.bar(k, prob, { color: 0x2c6e8c, widthMath: 0.7 });
+          }
+          this._bell(plot, mu, sigma, 0xffd166);
         },
       },
+
+      // ===== Page 2: Check conditions & Parameters =====
       {
         board: {
-          title: "Example 1 — shape",
-          accent: "#69f0ae",
+          title: "Solution ",
+          accent: "#4cc9f0",
           body: [
-            "Peak moves left to k=6.",
-            "Curve still hugs bars.",
-            "Skew is mild here,",
-            "so the fit is good.",
+            "np = 200 × 0.03 = 6 > 5  ✓",
+            "n(1−p) = 200 × 0.97 = 194 > 5  ✓",
+            "μ = np = 6",
+            "σ = √(np(1−p)) = √5.82 ≈ 2.41",
           ],
         },
         enter: (plot) => {
-          this._bars(plot, p);
-          this._bell(plot, mu, sigma);
+          for (let k = 0; k <= 20; k++) {
+            const prob = binomPMF(n, p, k);
+            plot.bar(k, prob, { color: 0x2c6e8c, widthMath: 0.7 });
+          }
+          this._bell(plot, mu, sigma, 0xffd166);
+          plot.marker(mu, normalPDF(mu, mu, sigma), {
+            color: 0xf72585,
+            size: 0.04,
+          });
+        },
+      },
+
+      // ===== Page 3: Z-score & Upper Tail (Right-tail) =====
+      {
+        board: {
+          title: "Solution ",
+          accent: "#4cc9f0",
+          body: [
+            "Z score = (8 − 6) / 2.41 = 0.83",
+            "Using  Z-table:",
+            "P(Z > 0.83) ≈ 0.2033",
+            "So P(X > 8)  ≈ 0.2033",
+          ],
+        },
+        enter: (plot) => {
+          this._bell(plot, mu, sigma, 0xffd166);
+          // 填藍色區域 (右尾: Z > 0.83, i.e., x > 8.5)
+          const z = 0.83;
+          const xStart = mu + z * sigma; // ≈ 8.5
+          const step = (20 - xStart) / 13.5;
+          for (let x = 9.1; x <= 20; x += step) {
+            plot.bar(x, normalPDF(x, mu, sigma), {
+              color: 0x2c6e8c,
+              widthMath: step * 0.7,
+            });
+          }
+          // 垂直線 + marker 喺 x = 8.5
+          const yBound = normalPDF(8.5, mu, sigma);
+          plot.segment(8.5, 0, 8.5, 0.2, {
+            color: 0xff0000,
+            radius: 0.02,
+          });
+          plot.marker(8.5, 0, { color: 0xff0000, size: 0.04, pulse: true });
+        },
+      },
+
+      // ===== Page 4: Final Answer =====
+      {
+        board: {
+          title: "Solution ",
+          accent: "#ffd166",
+          body: [
+            "P(X > 8) = P(Z > 0.83)",
+            "= 0.2033",
+            "So about 20.3% chance that more than",
+            "8 workers have an accident in a year.",
+          ],
+        },
+        enter: (plot) => {
+          this._bell(plot, mu, sigma, 0xffd166);
+          const z = 0.83;
+          const xStart = mu + z * sigma;
+          const step = (20 - xStart) / 13.5;
+          for (let x = 9.1; x <= 20; x += step) {
+            plot.bar(x, normalPDF(x, mu, sigma), {
+              color: 0x2c6e8c,
+              widthMath: step * 0.7,
+            });
+          }
+          plot.segment(8.5, 0, 8.5, 0.2, {
+            color: 0xff0000,
+            radius: 0.02,
+          });
+          plot.marker(8.5, 0, { color: 0xff0000, size: 0.04, pulse: true });
         },
       },
     ];
@@ -559,38 +921,130 @@ class NormalApproxStation extends BaseStation {
 
   // ---- EXAMPLE 2: when approximation is POOR (small np) -------------------
   defineExample2Steps() {
-    const p = 0.05, mu = this.N * p, sigma = Math.sqrt(this.N * p * (1 - p));
+    const n2 = 50;
+    const p2 = 0.2;
+    const mu2 = n2 * p2; // 10
+    const sigma2 = Math.sqrt(n2 * p2 * (1 - p2)); // √8 ≈ 2.83
+
     return [
+      // ===== Page 1: Question =====
       {
         board: {
-          title: "Example 2 — p = 0.05",
-          accent: "#f72585",
+          title: "Example: Defects",
+          accent: "#69f0ae",
           body: [
-            "n = 20, p = 0.05.",
-            "np = 1  (< 5!).",
-            "Rule fails here.",
-            "Bars are skewed.",
+            "Question:",
+            "A factory produces 50 items.Each item has a ",
+            "20% chance of being defective.Let X be",
+            "the number of defective items.As ",
+            "X ~ Binomial(n=50, p=0.2) so,Find P(X ≤ 5) ",
+            "using Normal approximation.",
           ],
         },
         enter: (plot) => {
-          this._bars(plot, p);
-          plot.marker(1, binomPMF(this.N, p, 1), { color: 0xf72585, size: 0.04 });
+          for (let k = 0; k <= 20; k++) {
+            const prob = binomPMF(n2, p2, k);
+            plot.bar(k, prob, { color: 0x2c6e8c, widthMath: 0.7 });
+          }
+          // normal curve
+          this._bell(plot, mu2, sigma2, 0xffd166);
         },
       },
+
+      // ===== Page 2: Solution Step 1 (Mean & Variance) =====
       {
         board: {
-          title: "Example 2 — poor fit",
-          accent: "#ffd166",
+          title: "Solution (Step 1)",
+          accent: "#69f0ae",
           body: [
-            "Overlay N(1, 0.95).",
-            "Curve misses the bars",
-            "and dips below zero.",
-            "Use Poisson instead.",
+            "Check conditions for Normal approx:",
+            "np = 50 × 0.2 = 10 > 5  ✓",
+            "n(1−p) = 50 × 0.8 = 40 > 5  ✓",
+            "So Normal approximation is valid.",
+            "μ = np = 10",
+            "σ = √(np(1−p)) = √(8) ≈ 2.83",
           ],
         },
         enter: (plot) => {
-          this._bars(plot, p);
-          this._bell(plot, mu, sigma);
+          for (let k = 0; k <= 20; k++) {
+            const prob = binomPMF(n2, p2, k);
+            plot.bar(k, prob, { color: 0x2c6e8c, widthMath: 0.7 });
+          }
+          this._bell(plot, mu2, sigma2, 0xffd166);
+          plot.marker(mu2, normalPDF(mu2, mu2, sigma2), {
+            color: 0xf72585,
+            size: 0.04,
+          });
+        },
+      },
+
+      // ===== Page 3: Solution Step 2 (Upper Tail Method) =====
+      {
+        board: {
+          title: "Solution (Step 2: Upper Tail)",
+          accent: "#4cc9f0",
+          body: [
+            "Z-score:",
+            "Z = (5 − 10) / 2.83 ≈ −1.77",
+            "Using upper-tail Z-table:",
+            "P(Z > −1.77) = 0.9616",
+            " (The blue area in the figure below.)",
+          ],
+        },
+        enter: (plot) => {
+          this._bell(plot, mu2, sigma2, 0xffd166);
+          // blue
+          const step = (20 - 5) / 13.5;
+          for (let x = 5.5; x <= 20; x += step) {
+            plot.bar(x, normalPDF(x, mu2, sigma2), {
+              color: 0x2c6e8c,
+              widthMath: step * 0.7,
+            });
+          }
+          //yellow
+          for (let x = 0; x <= 4.55; x += step) {
+            plot.bar(x, normalPDF(x, mu2, sigma2), {
+              color: 0xffd166,
+              widthMath: step * 0.7,
+            });
+          }
+
+          const yBound = normalPDF(5, mu2, sigma2);
+          plot.segment(5, 0, 5, 0.2, {
+            color: 0xff0000,
+            radius: 0.02,
+          });
+          plot.marker(5, 0, { color: 0xff0000, size: 0.04, pulse: true });
+        },
+      },
+
+      // ===== Page 4: Solution Step 3 (Final Answer) =====
+      {
+        board: {
+          title: "Solution (Step 3: Final Answer)",
+          accent: "#ffd166",
+          body: [
+            "Since P(X ≤ 5) = 1 − P(X > 5),",
+            "Answer = 1 − 0.9616 = 0.0384",
+            "So about 3.84% chance that 5 or fewer",
+            "items are defective.",
+          ],
+        },
+        enter: (plot) => {
+          this._bell(plot, mu2, sigma2, 0xffd166);
+          const step = (20 - 5) / 13.5;
+          for (let x = 0; x <= 4.55; x += step) {
+            plot.bar(x, normalPDF(x, mu2, sigma2), {
+              color: 0xffd166,
+              widthMath: step * 0.7,
+            });
+          }
+          const yBound = normalPDF(5, mu2, sigma2);
+          plot.segment(5, 0, 5, 0.2, {
+            color: 0xff0000,
+            radius: 0.02,
+          });
+          plot.marker(5, 0, { color: 0xff0000, size: 0.04, pulse: true });
         },
       },
     ];
