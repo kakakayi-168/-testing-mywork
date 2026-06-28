@@ -428,8 +428,13 @@ class NormalApproxStation extends BaseStation {
     });
   }
   _bars(plot, p, color = 0x2c6e8c) {
+    // Clamp bar height to the plot's yMax so very tall bars (e.g. p=0.05 where
+    // P(0),P(1) ≈ 0.37) never shoot off the top of the blackboard. A clamped
+    // bar visibly hits the ceiling, which still reads as "very likely".
+    const yCap = plot.cfg.yMax;
     for (let k = 0; k <= this.N; k++) {
-      plot.bar(k, binomPMF(this.N, p, k), { color, widthMath: 0.75 });
+      const prob = Math.min(binomPMF(this.N, p, k), yCap);
+      plot.bar(k, prob, { color, widthMath: 0.75 });
     }
   }
   _bell(plot, mu, sigma, color = 0xffd166) {
