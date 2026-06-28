@@ -91,30 +91,59 @@ export class WallProjector extends THREE.Group {
     ctx.fillStyle = "rgba(8,12,26,0.96)";
     ctx.fillRect(0, 80 * DPR, cw, 50 * DPR);
 
-    // Title
+    // Title (auto-shrunk to fit the panel width so long titles don't clip)
     ctx.fillStyle = "#06121a";
-    ctx.font = `700 ${52 * DPR}px "Segoe UI", Roboto, sans-serif`;
     ctx.textBaseline = "middle";
     ctx.textAlign = "left";
-    ctx.fillText(title, 56 * DPR, 60 * DPR);
+    const titleLeft = 56 * DPR;
+    const titleMaxW = cw - titleLeft - 40 * DPR;
+    let titleFs = 52 * DPR;
+    do {
+      ctx.font = `700 ${titleFs}px "Segoe UI", Roboto, sans-serif`;
+      if (ctx.measureText(title).width <= titleMaxW) break;
+      titleFs -= 1 * DPR;
+    } while (titleFs > 22 * DPR);
+    ctx.fillText(title, titleLeft, 60 * DPR);
 
-    // Body lines (math + prose). Auto-fit font to available height.
+    // Body lines (math + prose). Auto-fit font to available height AND width so
+    // text never overflows the panel edges. We pick the largest font that makes
+    // every line fit both vertically (avail/n) and horizontally (cw - margins).
     const top = 170 * DPR;
     const bottom = ch - 60 * DPR;
     const avail = bottom - top;
     const n = Math.max(body.length, 1);
+    const leftPad = 56 * DPR;
+    const rightPad = 40 * DPR;
+    const maxLineW = cw - leftPad - rightPad;
+
+    const isMathLine = (line) =>
+      /[=≈∑√µσλπ∞]/.test(line) || /\bP\(|f\(|L\(/.test(line);
+    const fontFor = (fs, line) =>
+      `${isMathLine(line) ? "italic " : ""}${fs}px ${
+        isMathLine(line) ? '"Cambria Math", Georgia, serif' : '"Segoe UI", Roboto, sans-serif'
+      }`;
+
+    // Start from the height-based font size, then shrink until the widest line
+    // fits within maxLineW. This guarantees all text stays inside the panel.
     let fs = Math.min(48 * DPR, (avail / n) * 0.62);
-    fs = Math.max(fs, 22 * DPR);
+    const minFs = 16 * DPR;
+    const widest = () => {
+      let w = 0;
+      for (const line of body) {
+        ctx.font = fontFor(fs, line);
+        w = Math.max(w, ctx.measureText(line).width);
+      }
+      return w;
+    };
+    while (fs > minFs && widest() > maxLineW) fs -= 1 * DPR;
+    fs = Math.max(fs, minFs);
     const lh = avail / n;
 
     ctx.textAlign = "left";
     body.forEach((line, i) => {
-      const isMath = /[=≈∑√µσλπ∞]/.test(line) || /\bP\(|f\(|L\(/.test(line);
-      ctx.font = `${isMath ? "italic " : ""}${fs}px ${
-        isMath ? '"Cambria Math", Georgia, serif' : '"Segoe UI", Roboto, sans-serif'
-      }`;
-      ctx.fillStyle = isMath ? "#ffe39e" : "#eaf1ff";
-      ctx.fillText(line, 56 * DPR, top + lh * (i + 0.5));
+      ctx.font = fontFor(fs, line);
+      ctx.fillStyle = isMathLine(line) ? "#ffe39e" : "#eaf1ff";
+      ctx.fillText(line, leftPad, top + lh * (i + 0.5));
     });
 
     const tex = new THREE.CanvasTexture(canvas);

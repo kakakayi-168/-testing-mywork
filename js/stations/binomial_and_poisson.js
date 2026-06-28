@@ -80,11 +80,11 @@ function placeProjectorInCorner(station, side = "right", minLeftX = null) {
   const margin = 0.07;
   const rightEdge = boardHalfW - margin; // 1.38
 
-  let scale = 0.32; // default uniform → panel ≈ 1.09 m wide
+  let scale = 0.42; // default uniform → panel ≈ 1.09 m wide
   if (minLeftX !== null) {
     // width so that rightEdge - width = minLeftX  → width = rightEdge - minLeftX
     const wantW = Math.max(0.6, rightEdge - minLeftX); // floor so text stays legible
-    scale = Math.min(0.32, wantW / 3.4); // never larger than default
+    scale = Math.min(0.42, wantW / 3.4); // never larger than default
   }
   proj.scale.setScalar(scale);
 
@@ -180,7 +180,7 @@ function addAxisLabels(plot, opts = {}) {
   for (let k = Math.max(0, Math.ceil(cfg.xMin)); k <= cfg.xMax; k += xStep) {
     if (k > xMaxLabel) break;
     const label = makeTextSprite(String(k), {
-      worldHeight: 0.14,
+      worldHeight: 0.18,
       color: "#eef4ff",
       bold: true,
       align: "center",
@@ -201,7 +201,7 @@ function addAxisLabels(plot, opts = {}) {
   for (const yv of yTicks) {
     if (yv < cfg.yMin || yv > cfg.yMax) continue;
     const label = makeTextSprite(yv.toFixed(yv === 0 ? 0 : 1), {
-      worldHeight: 0.12,
+      worldHeight: 0.16,
       color: "#eef4ff",
       bold: true,
       align: "left",
@@ -228,7 +228,7 @@ function addAxisLabels(plot, opts = {}) {
 
   // X-title: centred under the axis, placed below the tick-number row in the
   // bottom margin (the plot was sized to leave room), clamped on-board.
-  const xTitleH = 0.13;
+  const xTitleH = 0.17;
   const xt = makeTextSprite(xTitle, {
     worldHeight: xTitleH,
     color: "#eef4ff",
@@ -242,7 +242,7 @@ function addAxisLabels(plot, opts = {}) {
 
   // Y-title: horizontal caption in the top-left free area inside the plot.
   const yt = makeTextSprite(yTitle, {
-    worldHeight: 0.13,
+    worldHeight: 0.17,
     color: "#eef4ff",
     bold: true,
     align: "left",
@@ -265,7 +265,7 @@ class BinomialStation extends BaseStation {
   }
   plotConfig() {
     // X from 0..n=10 on the x-axis; probability 0..~0.3 on the y-axis.
-    return { xMin: -0.5, xMax: 10.5, yMin: 0, yMax: 0.45, width: 2.0, height: 1.25 };
+    return { xMin: -0.5, xMax: 10.5, yMin: 0, yMax: 0.45, width: 1.8, height: 1.7 };
   }
   buildGraph(plot) {
     // Bars are dynamic (per step). Axis labels are static, added once here so
@@ -525,7 +525,7 @@ class PoissonStation extends BaseStation {
     placeProjectorInCorner(this);
   }
   plotConfig() {
-    return { xMin: -0.5, xMax: 12.5, yMin: 0, yMax: 0.32, width: 2.0, height: 1.25 };
+    return { xMin: -0.5, xMax: 12.5, yMin: 0, yMax: 0.32, width: 1.8, height: 1.7 };
   }
   buildGraph(plot) {
     this.KMAX = 12;

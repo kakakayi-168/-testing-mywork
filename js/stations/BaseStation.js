@@ -54,9 +54,21 @@ export class BaseStation extends THREE.Group {
 
   // ---- mounting on the wall ------------------------------------------------
   _mount(room) {
-    const a = room.wallAnchor(this.def.wall.side, this.def.wall.t ?? 0, this.def.wall.y ?? 1.7);
+    // Lift every board higher up the wall so the enlarged board keeps a clear
+    // gap from the floor, and scale the WHOLE station (board + graph + axis
+    // labels + corner explanation panel + title) up together as one unit.
+    //
+    // Scaling the group (rather than resizing the board mesh) is deliberate: it
+    // keeps every station author's internal geometry — including Member 2's
+    // corner-docked panel math in binomial_and_poisson.js — perfectly valid,
+    // because everything grows by the same factor. Uniform for all stations.
+    const STATION_SCALE = 1.4; // board+graph+panel ~40% bigger
+    const MOUNT_Y = 2.3;       // raise so the bigger board clears the floor
+
+    const a = room.wallAnchor(this.def.wall.side, this.def.wall.t ?? 0, MOUNT_Y);
     this.position.copy(a.pos);
     this.rotation.y = a.faceY;
+    this.scale.setScalar(STATION_SCALE);
     this.anchor = a;
   }
 
@@ -69,7 +81,7 @@ export class BaseStation extends THREE.Group {
       bg: "rgba(20,28,56,0.85)",
       padding: 22,
     });
-    this.titleSprite.position.set(0, 1.35, 0.05);
+    this.titleSprite.position.set(0, 1.0, 0.05);
     this.add(this.titleSprite);
 
     // The graph area (a framed board)
@@ -179,7 +191,7 @@ export class BaseStation extends THREE.Group {
     this.projector.update(dt);
     // gentle title bob so the board feels alive
     if (this.titleSprite) {
-      this.titleSprite.position.y = 1.35 + Math.sin(this._t * 1.5) * 0.01;
+      this.titleSprite.position.y = 1.0 + Math.sin(this._t * 1.5) * 0.01;
     }
   }
 }

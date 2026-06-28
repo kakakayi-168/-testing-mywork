@@ -34,8 +34,9 @@ export class PlayerController extends THREE.Group {
 
     this._buildAvatar();
 
-    // Spawn near the back of the room, looking toward the front (+Z)
-    this.position.set(0, 0, -options.room.depth / 2 + 1.5);
+    // Spawn in the MIDDLE of the classroom, in the clear aisle between the two
+    // desk rows, so the student starts centrally and can turn to any board.
+    this.position.set(0, 0, -0.8);
     this.yaw = 0;
   }
 
