@@ -51,6 +51,10 @@ export class BaseStation extends THREE.Group {
   defineSteps() {
     return [];
   }
+  // Optional plot shift (override to move the graph clear of the side panel).
+  plotOffset() {
+    return { x: 0, y: 0 };
+  }
 
   // ---- mounting on the wall ------------------------------------------------
   _mount(room) {
@@ -81,7 +85,7 @@ export class BaseStation extends THREE.Group {
       bg: "rgba(20,28,56,0.85)",
       padding: 22,
     });
-    this.titleSprite.position.set(0, 1.0, 0.05);
+    this.titleSprite.position.set(0, 1.2, 0.05);
     this.add(this.titleSprite);
 
     // The graph area (a framed board)
@@ -101,9 +105,12 @@ export class BaseStation extends THREE.Group {
     frame.position.z = 0.0;
     this.add(frame);
 
-    // The plot lives slightly in front of the board surface
+    // The plot lives slightly in front of the board surface. Stations can
+    // override plotOffset() to shift the graph sideways/vertically so it clears
+    // a corner-docked explanation panel (e.g. shift right when panel is left).
+    const off = this.plotOffset();
     this.plot = new MathPlot(this.plotConfig());
-    this.plot.position.set(0, 0, 0.04);
+    this.plot.position.set(off.x || 0, off.y || 0, 0.04);
     this.plot.addGrid();
     this.plot.addAxes();
     this.add(this.plot);
@@ -191,7 +198,7 @@ export class BaseStation extends THREE.Group {
     this.projector.update(dt);
     // gentle title bob so the board feels alive
     if (this.titleSprite) {
-      this.titleSprite.position.y = 1.0 + Math.sin(this._t * 1.5) * 0.01;
+      this.titleSprite.position.y = 1.2 + Math.sin(this._t * 1.5) * 0.01;
     }
   }
 }

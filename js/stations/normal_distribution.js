@@ -38,17 +38,17 @@ import { makeTextSprite } from "../core/TextSprite.js";
    look: explanation panel docked TOP-RIGHT inside the board, numeric axis
    labels, no origin orientation arrows. Local to this file for independence.
    --------------------------------------------------------------------------- */
-const PANEL_SCALE = 0.50; // bigger text than binomial's 0.32, still on-board
+const PANEL_SCALE = 0.42; // bigger text than binomial's 0.32, still on-board
 
-function placeProjectorInCorner(station, minLeftX = null) {
+function placeProjectorInCorner(station, side = "right", minLeftX = null) {
   const proj = station.projector;
   const boardHalfW = 2.9 / 2;
   const boardHalfH = 2.2 / 2;
   const margin = 0.07;
-  const rightEdge = boardHalfW - margin;
 
   let scale = PANEL_SCALE;
   if (minLeftX !== null) {
+    const rightEdge = boardHalfW - margin;
     const wantW = Math.max(0.6, rightEdge - minLeftX);
     scale = Math.min(PANEL_SCALE, wantW / 3.4);
   }
@@ -56,7 +56,14 @@ function placeProjectorInCorner(station, minLeftX = null) {
 
   const projW = 3.4 * scale;
   const projH = 2.0 * scale;
-  proj.position.set(rightEdge - projW / 2, boardHalfH - margin - projH / 2, 0.08);
+  const y = boardHalfH - margin - projH / 2;
+  let x;
+  if (side === "left") {
+    x = (-boardHalfW + margin) + projW / 2;
+  } else {
+    x = (boardHalfW - margin) - projW / 2;
+  }
+  proj.position.set(x, y, 0.08);
 }
 
 function removeOrientationArrows(plot) {
@@ -199,7 +206,10 @@ function setupExampleButtons(station, stationTitle, idPrefix) {
 class NormalStation extends BaseStation {
   // Member-2-style: dock the explanation into the board's top-right corner.
   _placeProjector() {
-    placeProjectorInCorner(this);
+    placeProjectorInCorner(this, "left");
+  }
+  plotOffset() {
+    return { x: 0.4, y: -0.15 };
   }
   plotConfig() {
     // Same board-relative proportions as Member 2 (2.4 x 1.5) so all graphs
@@ -391,7 +401,10 @@ class NormalStation extends BaseStation {
    ======================================================================= */
 class NormalApproxStation extends BaseStation {
   _placeProjector() {
-    placeProjectorInCorner(this);
+    placeProjectorInCorner(this, "left");
+  }
+  plotOffset() {
+    return { x: 0.4, y: -0.15 };
   }
   plotConfig() {
     return { xMin: -0.5, xMax: 20.5, yMin: 0, yMax: 0.22, width: 1.8, height: 1.7 };

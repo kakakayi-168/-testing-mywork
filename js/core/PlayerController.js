@@ -35,9 +35,10 @@ export class PlayerController extends THREE.Group {
     this._buildAvatar();
 
     // Spawn in the MIDDLE of the classroom, in the clear aisle between the two
-    // desk rows, so the student starts centrally and can turn to any board.
+    // desk rows, FACING the front wall (+Z) where the Binomial/Poisson boards
+    // hang, so the student starts looking at a blackboard.
     this.position.set(0, 0, -0.8);
-    this.yaw = 0;
+    this.yaw = Math.PI; // face +Z (front wall with boards)
   }
 
   _buildAvatar() {

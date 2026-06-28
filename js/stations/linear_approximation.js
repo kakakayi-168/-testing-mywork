@@ -34,7 +34,7 @@ import { makeTextSprite } from "../core/TextSprite.js";
    numeric axis labels, and no origin orientation arrows. Kept local to this
    file so it stays independent of the other members' files.
    --------------------------------------------------------------------------- */
-const PANEL_SCALE = 0.50; // bigger text than binomial's 0.32, still on-board
+const PANEL_SCALE = 0.42; // bigger text than binomial's 0.32, still on-board
 
 function placeProjectorInCorner(station, side = "right", minLeftX = null) {
   const proj = station.projector;
@@ -191,6 +191,10 @@ class LinearApproxStation extends BaseStation {
   // The curve/tangent action is on the right side here, so the left has space.
   _placeProjector() {
     placeProjectorInCorner(this, "left");
+  }
+  // Shift the graph right so it doesn't sit under the left-docked panel.
+  plotOffset() {
+    return { x: 0.4, y: -0.15 };
   }
   plotConfig() {
     // Same board-relative proportions as Member 2's boards (2.4 x 1.5), so the
