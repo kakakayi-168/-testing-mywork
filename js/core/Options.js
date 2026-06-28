@@ -29,7 +29,7 @@ export class Options {
     };
 
     // ---- Interaction -------------------------------------------------------
-    this.interactDistance = 3.2; // how close to enable "Interact"
+    this.interactDistance = 4.2; // how close to enable "Interact" (roomy for phone)
     this.projectionFadeSpeed = 4.0; // wall-projection fade rate
 
     // ---- Desktop simulator -------------------------------------------------

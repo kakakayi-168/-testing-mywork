@@ -92,34 +92,41 @@ function addAxisLabels(plot, opts = {}) {
     for (let x = Math.ceil(cfg.xMin); x <= cfg.xMax; x += xStep) arr.push(x);
     return arr;
   })();
+  // X tick numbers: just below the x-axis line.
   for (const xv of xs) {
     if (xv < cfg.xMin || xv > cfg.xMax) continue;
     const label = makeTextSprite(String(xv), {
-      worldHeight: 0.18, color: "#eef4ff", bold: true, align: "center",
+      worldHeight: 0.15, color: "#eef4ff", bold: true, align: "center",
     });
     const p = plot.toLocal(xv, baseY, 0.05);
-    label.position.set(p.x, p.y - 0.12, 0.05);
+    label.position.set(p.x, p.y - 0.13, 0.05);
     plot.add(label);
   }
+  // Y tick numbers: tucked JUST INSIDE the left plot edge so the left-docked
+  // panel never sits on top of them.
   for (const yv of yTicks) {
     if (yv < cfg.yMin || yv > cfg.yMax) continue;
     const label = makeTextSprite(Number.isInteger(yv) ? String(yv) : yv.toFixed(yv < 0.1 ? 2 : 1), {
-      worldHeight: 0.16, color: "#eef4ff", bold: true, align: "left",
+      worldHeight: 0.14, color: "#eef4ff", bold: true, align: "left",
     });
     const p = plot.toLocal(cfg.xMin, yv, 0.05);
-    label.position.set(p.x + 0.02, p.y, 0.07);
+    label.position.set(p.x + 0.03, p.y, 0.07);
     plot.add(label);
   }
+  // X-axis title: placed clearly BELOW the number row (extra gap so the title
+  // and the numbers never overlap), but kept inside the board bottom.
   const xt = makeTextSprite(xTitle, {
-    worldHeight: 0.17, color: "#eef4ff", bold: true, align: "center",
+    worldHeight: 0.14, color: "#cdd8f5", bold: true, align: "center",
   });
-  const xRowY = plot.toLocal(0, baseY).y - 0.12;
-  xt.position.set(0, Math.max(xRowY - 0.16, -halfH), 0.07);
+  const xRowY = plot.toLocal(0, baseY).y - 0.13;       // the number row
+  const xTitleY = xRowY - 0.20;                         // clear gap below numbers
+  xt.position.set(0, xTitleY, 0.07);
   plot.add(xt);
+  // Y-axis title: bottom-right free area, away from panel and y-numbers.
   const yt = makeTextSprite(yTitle, {
-    worldHeight: 0.17, color: "#eef4ff", bold: true, align: "left",
+    worldHeight: 0.14, color: "#cdd8f5", bold: true, align: "right",
   });
-  yt.position.set(-halfW + 0.3, halfH - 0.13, 0.07);
+  yt.position.set(halfW - 0.12, -halfH + 0.16, 0.07);
   plot.add(yt);
 }
 
@@ -206,15 +213,15 @@ function setupExampleButtons(station, stationTitle, idPrefix) {
 class NormalStation extends BaseStation {
   // Member-2-style: dock the explanation into the board's top-right corner.
   _placeProjector() {
-    placeProjectorInCorner(this, "left");
+    placeProjectorInCorner(this, "right");
   }
   plotOffset() {
-    return { x: 0.4, y: -0.15 };
+    return { x: -0.3, y: 0.05 };
   }
   plotConfig() {
     // Same board-relative proportions as Member 2 (2.4 x 1.5) so all graphs
     // match in size once BaseStation scales the whole station.
-    return { xMin: -4, xMax: 4, yMin: 0, yMax: 0.5, width: 1.8, height: 1.7 };
+    return { xMin: -4, xMax: 4, yMin: 0, yMax: 0.5, width: 1.6, height: 1.55 };
   }
   buildGraph(plot) {
     removeOrientationArrows(plot);
@@ -401,13 +408,13 @@ class NormalStation extends BaseStation {
    ======================================================================= */
 class NormalApproxStation extends BaseStation {
   _placeProjector() {
-    placeProjectorInCorner(this, "left");
+    placeProjectorInCorner(this, "right");
   }
   plotOffset() {
-    return { x: 0.4, y: -0.15 };
+    return { x: -0.3, y: 0.05 };
   }
   plotConfig() {
-    return { xMin: -0.5, xMax: 20.5, yMin: 0, yMax: 0.22, width: 1.8, height: 1.7 };
+    return { xMin: -0.5, xMax: 20.5, yMin: 0, yMax: 0.22, width: 1.6, height: 1.55 };
   }
   buildGraph(plot) {
     this.N = 20;
