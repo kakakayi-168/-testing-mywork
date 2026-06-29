@@ -411,7 +411,7 @@ class NormalStation extends BaseStation {
     const scaleFactor = 0.6;
     const mu = 0;
     const sigma = 0.5;
-    const verticalExtension = 0.58;
+    const verticalExtension = 0.55;
 
     const Z1 = -1.0;
     const Z2 = 0.5;
