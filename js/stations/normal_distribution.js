@@ -411,6 +411,7 @@ class NormalStation extends BaseStation {
     const scaleFactor = 0.6;
     const mu = 0;
     const sigma = 0.5;
+    const verticalExtension = 0.58;
 
     const Z1 = -1.0;
     const Z2 = 0.5;
@@ -426,7 +427,7 @@ class NormalStation extends BaseStation {
     const drawZMarker = (plot, z, color = 0xffd166) => {
       const y = normalPDF(z, mu, sigma) * scaleFactor;
       plot.marker(z, 0, { color, size: 0.06 });
-      plot.segment(z, 0, z, y + 0.03, {  // stop at the curve, not the board top
+      plot.segment(z, 0, z, verticalExtension, {
         color,
         radius: 0.015,
       });
@@ -540,6 +541,7 @@ class NormalStation extends BaseStation {
     const scaleFactor = 0.6;
     const mu = 0;
     const sigma = 0.5;
+    const verticalExtension = 0.58;
 
     const Z1 = 0.1;
     const Z2 = 0.6;
@@ -555,7 +557,7 @@ class NormalStation extends BaseStation {
     const drawZMarker = (plot, z, color = 0xffd166) => {
       const y = normalPDF(z, mu, sigma) * scaleFactor;
       plot.marker(z, 0, { color, size: 0.06 });
-      plot.segment(z, 0, z, y + 0.03, {  // stop at the curve, not the board top
+      plot.segment(z, 0, z, verticalExtension, {
         color,
         radius: 0.015,
       });
