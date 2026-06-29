@@ -38,7 +38,7 @@ import { makeTextSprite } from "../core/TextSprite.js";
    look: explanation panel docked TOP-RIGHT inside the board, numeric axis
    labels, no origin orientation arrows. Local to this file for independence.
    --------------------------------------------------------------------------- */
-const PANEL_SCALE = 0.42; // bigger text than binomial's 0.32, still on-board
+const PANEL_SCALE = 0.38; // bigger text than binomial's 0.32, still on-board
 
 function placeProjectorInCorner(station, side = "right", minLeftX = null) {
   const proj = station.projector;
@@ -229,7 +229,7 @@ class NormalStation extends BaseStation {
   plotConfig() {
     // Same board-relative proportions as Member 2 (2.4 x 1.5) so all graphs
     // match in size once BaseStation scales the whole station.
-    return { xMin: -4, xMax: 4, yMin: 0, yMax: 0.5, width: 1.6, height: 1.55 };
+    return { xMin: -4, xMax: 4, yMin: 0, yMax: 0.5, width: 2.1, height: 1.6 };
   }
   buildGraph(plot) {
     removeOrientationArrows(plot);
@@ -686,7 +686,7 @@ class NormalApproxStation extends BaseStation {
     return { x: -0.3, y: 0.05 };
   }
   plotConfig() {
-    return { xMin: 0, xMax: 20.5, yMin: 0, yMax: 0.22, width: 1.6, height: 1.55 };
+    return { xMin: 0, xMax: 20.5, yMin: 0, yMax: 0.22, width: 2.1, height: 1.6 };
   }
   buildGraph(plot) {
     this.N = 20;

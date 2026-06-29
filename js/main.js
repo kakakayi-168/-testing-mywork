@@ -199,16 +199,39 @@ class App {
   _updateProximity() {
     if (this.activeStation) return; // ignore while a lesson is open
     const eye = this.player.worldEye;
+
+    // Direction the camera is looking (horizontal). Used so we select the board
+    // the student is FACING, not merely the closest one — fixes "I'm near
+    // Poisson but looking at Binomial and tap the wrong board".
+    const look = new THREE.Vector3();
+    this.camera.getWorldDirection(look);
+    look.y = 0;
+    look.normalize();
+
+    const toBoard = new THREE.Vector3();
     let best = null;
+    let bestScore = -Infinity;
     let bestDist = Infinity;
     for (const s of this.stations) {
       const d = eye.distanceTo(s.worldCenter);
-      if (d < bestDist) {
-        bestDist = d;
+      if (d > this.options.interactDistance) continue; // out of range
+      // horizontal direction from eye to this board
+      toBoard.copy(s.worldCenter).sub(eye);
+      toBoard.y = 0;
+      toBoard.normalize();
+      const facing = look.dot(toBoard); // 1 = looking straight at it, <0 = behind
+      // Must be reasonably in front (within ~60° of look direction).
+      if (facing < 0.5) continue;
+      // Prefer the board most directly faced; use distance as a tie-breaker.
+      const score = facing - d * 0.05;
+      if (score > bestScore) {
+        bestScore = score;
         best = s;
+        bestDist = d;
       }
     }
-    if (best && bestDist <= this.options.interactDistance) {
+
+    if (best) {
       this.nearest = best;
       this.interactBtn.classList.remove("hidden");
       this.hint.textContent = `${best.def.title} — tap Interact`;
