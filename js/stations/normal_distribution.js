@@ -95,44 +95,64 @@ function addAxisLabels(plot, opts = {}) {
   const halfH = cfg.height / 2;
   const baseY = (cfg.yMin <= 0 && cfg.yMax >= 0) ? 0 : cfg.yMin;
 
+  // ---- X-axis tick numbers: under each integer -------------------------
   const xs = xTicks || (() => {
     const arr = [];
-    for (let x = Math.ceil(cfg.xMin); x <= cfg.xMax; x += xStep) arr.push(x);
+    for (let x = Math.max(0, Math.ceil(cfg.xMin)); x <= cfg.xMax; x += xStep) arr.push(x);
     return arr;
   })();
-  // X tick numbers: just below the x-axis line.
+  
   for (const xv of xs) {
     if (xv < cfg.xMin || xv > cfg.xMax) continue;
     const label = makeTextSprite(String(xv), {
-      worldHeight: 0.15, color: "#eef4ff", bold: true, align: "center",
+      worldHeight: 0.18,  // Increased for better readability
+      color: "#eef4ff", 
+      bold: true, 
+      align: "center",
     });
     const p = plot.toLocal(xv, baseY, 0.05);
-    label.position.set(p.x, p.y - 0.13, 0.05);
+    label.position.set(p.x, p.y - 0.10, 0.05);  // Reduced gap
     plot.add(label);
   }
-  // Y tick numbers: tucked JUST INSIDE the left plot edge so the left-docked
-  // panel never sits on top of them.
+
+  // ---- Y-axis tick numbers: tucked JUST INSIDE the left edge ----------
   for (const yv of yTicks) {
     if (yv < cfg.yMin || yv > cfg.yMax) continue;
-    const label = makeTextSprite(Number.isInteger(yv) ? String(yv) : yv.toFixed(yv < 0.1 ? 2 : 1), {
-      worldHeight: 0.14, color: "#eef4ff", bold: true, align: "left",
+    const label = makeTextSprite(yv.toFixed(yv === 0 ? 0 : 1), {
+      worldHeight: 0.16,  // Slightly larger
+      color: "#eef4ff", 
+      bold: true, 
+      align: "left",
     });
     const p = plot.toLocal(cfg.xMin, yv, 0.05);
-    label.position.set(p.x + 0.03, p.y, 0.07);
+    label.position.set(p.x + 0.02, p.y, 0.07);  // Tighter to edge
     plot.add(label);
+    // small tick guide line on the axis
+    plot.segment(cfg.xMin, yv, cfg.xMin + (cfg.xMax - cfg.xMin) * 0.02, yv, {
+      color: 0x8fa3d8,
+      radius: 0.004,
+      dynamic: false,
+    });
   }
-  // X-axis title: placed clearly BELOW the number row (extra gap so the title
-  // and the numbers never overlap), but kept inside the board bottom.
+
+  // ---- X-axis title: clearly below the number row ---------------------
   const xt = makeTextSprite(xTitle, {
-    worldHeight: 0.14, color: "#cdd8f5", bold: true, align: "center",
+    worldHeight: 0.14, 
+    color: "#cdd8f5", 
+    bold: true, 
+    align: "center",
   });
-  const xRowY = plot.toLocal(0, baseY).y - 0.13;       // the number row
-  const xTitleY = xRowY - 0.20;                         // clear gap below numbers
+  const xRowY = plot.toLocal(0, baseY).y - 0.10;  // Adjusted to match new gap
+  const xTitleY = xRowY - 0.20;
   xt.position.set(0, xTitleY, 0.07);
   plot.add(xt);
-  // Y-axis title: bottom-right free area, away from panel and y-numbers.
+
+  // ---- Y-axis title: bottom-right free area ---------------------------
   const yt = makeTextSprite(yTitle, {
-    worldHeight: 0.14, color: "#cdd8f5", bold: true, align: "right",
+    worldHeight: 0.14, 
+    color: "#cdd8f5", 
+    bold: true, 
+    align: "right",
   });
   yt.position.set(halfW - 0.12, -halfH + 0.16, 0.07);
   plot.add(yt);
